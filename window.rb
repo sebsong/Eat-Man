@@ -1,4 +1,4 @@
-#Establish the z-coordinate orders for items
+#Establish the z-coordinate layer orders for items
 module ZOrder
     Background = 0
     Burger = 1
@@ -9,7 +9,7 @@ end
 #Set up the Game Window
 class GameWindow < Gosu::Window
     def initialize
-        super(640, 480, false)
+        super(640, 480, false) #Set game window size
         self.caption = 'Eat Man'
         @background_image = Gosu::Image.new(self, 'img/background.png', true)
         @player = Player.new(self)
@@ -22,6 +22,7 @@ class GameWindow < Gosu::Window
     end
     
     def update
+        #Take in keyboard control inputs
         if button_down? Gosu::KbLeft
             @player.icon = Gosu::Image.new(self, 'img/player_left.png', false)
             @player.move_left
@@ -38,6 +39,7 @@ class GameWindow < Gosu::Window
             @player.icon = Gosu::Image.new(self, 'img/player_down.png', false)
             @player.move_down
         end
+        #Update burgers and establish collision/collision effects
         @burgers.each do |burger|
             burger.update
             if Gosu::distance(burger.x, burger.y, @player.x, @player.y) < 25
@@ -46,6 +48,7 @@ class GameWindow < Gosu::Window
                 @score += 1
             end
         end
+        #Detect which song is playing
         if @music[0].playing?
             @song = "We Are The Champions - Queen"
         elsif @music[1].playing?
@@ -59,13 +62,13 @@ class GameWindow < Gosu::Window
 
     def draw
         @background_image.draw_as_quad(0, 0, 0xffffffff, self.width, 0, 0xffffffff, self.width, self.width, 0xffffffff, 0, self.height, 0xffffffff, ZOrder::Background) #Draw the background as a quadrangle to fit the screen
-        @font.draw("Score: #{@score}", 10, 10, ZOrder::UI, 1.0, 1.0, 0xff000080)
-        @font.draw("Now Playing: #{@song}", self.width / 4, self.height - 20, ZOrder::UI, 1.0, 1.0, 0xff000080)
+        @font.draw("Score: #{@score}", 10, 10, ZOrder::UI, 1.0, 1.0, 0xff000080) #Display/update score
+        @font.draw("Now Playing: #{@song}", self.width / 4, self.height - 20, ZOrder::UI, 1.0, 1.0, 0xff000080) #Display/update song title
         @player.draw
         @burgers.each{|burger| burger.draw}
     end
 
-    def button_down(id)
+    def button_down(id) #Single use keyboard controls
         case id
         when Gosu::KbQ
             close
@@ -128,6 +131,7 @@ class Player
     end
 end
 
+#Vertically falling burger class
 class Burger1
     attr_reader :x, :y
     def initialize(window)
@@ -135,11 +139,11 @@ class Burger1
         @icon = Gosu::Image.new(@window, "img/burger.png", false)
         @x = rand(@window.width)
         @y = rand(@window.height)
-        @hit = false
     end
 
     def update
         @y += 7
+        #If the burger reaches the end of the window, reset to beginning
         if @y > @window.height
             reset
         end
@@ -155,6 +159,7 @@ class Burger1
     end
 end
 
+#Horizontally moving burger class
 class Burger2
     attr_reader :x, :y
     def initialize(window)
@@ -167,6 +172,7 @@ class Burger2
 
     def update
         @x += 7
+        #If the burger reaches the end of the window, reset to beginning
         if @x > @window.width
             reset
         end
