@@ -52,7 +52,7 @@ class GameWindow < Gosu::Window
         if @music[0].playing?
             @song = "We Are The Champions - Queen"
         elsif @music[1].playing?
-            @song = "Blank Space - T-Swizzle"
+            @song = "Blank Space - Taylor Swift"
         elsif @music[2].playing?
             @song = "Legend of Zelda - Nintendo"
         elsif @music[3].playing?
@@ -72,11 +72,11 @@ class GameWindow < Gosu::Window
         case id
         when Gosu::KbQ
             close
-        when Gosu::KbV
+        when Gosu::Kb3
             @music[1].play(true)
-        when Gosu::KbF
+        when Gosu::Kb2
             @music[2].play(true)
-        when Gosu::KbR
+        when Gosu::Kb1
             @music[3].play(true)
         end
     end
@@ -103,28 +103,28 @@ class Player
     end
 
     def move_left
-        @x -= 8
+        @x -= 6
         if @x < 0
             @x = 0
         end
     end
 
     def move_right
-        @x += 8
+        @x += 6
         if @x > @window.width - 25
             @x = @window.width - 25
         end
     end
 
     def move_up
-        @y -= 8
+        @y -= 6
         if @y == 0
             @y = 0
         end
     end
 
     def move_down
-        @y += 8
+        @y += 6
         if @y == @window.height
             @y = @window.height
         end
@@ -142,7 +142,7 @@ class Burger1
     end
 
     def update
-        @y += 7
+        @y += 4
         #If the burger reaches the end of the window, reset to beginning
         if @y > @window.height
             reset
@@ -167,11 +167,10 @@ class Burger2
         @icon = Gosu::Image.new(@window, "img/burger.png", false)
         @x = rand(@window.width)
         @y = rand(@window.height)
-        @hit = false
     end
 
     def update
-        @x += 7
+        @x += 4
         #If the burger reaches the end of the window, reset to beginning
         if @x > @window.width
             reset
