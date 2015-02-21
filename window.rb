@@ -61,7 +61,7 @@ class GameWindow < Gosu::Window
     end
 
     def draw
-        @background_image.draw_as_quad(0, 0, 0xffffffff, self.width, 0, 0xffffffff, self.width, self.width, 0xffffffff, 0, self.height, 0xffffffff, ZOrder::Background) #Draw the background as a quadrangle to fit the screen
+        @background_image.draw_as_quad(0, 0, 0xffffffff, self.width, 0, 0xffffffff, self.width, self.height, 0xffffffff, 0, self.height, 0xffffffff, ZOrder::Background) #Draw the background as a quadrangle to fit the screen
         @font.draw("Score: #{@score}", 10, 10, ZOrder::UI, 1.0, 1.0, 0xff000080) #Display/update score
         @font.draw("Now Playing: #{@song}", self.width / 4, self.height - 20, ZOrder::UI, 1.0, 1.0, 0xff000080) #Display/update song title
         @player.draw
