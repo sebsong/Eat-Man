@@ -13,12 +13,16 @@ class GameWindow < Gosu::Window
         self.caption = 'Eat Man'
         @background_image = Gosu::Image.new(self, 'img/background.png', true)
         @player = Player.new(self)
-        @burgers = [Burger1.new(self), Burger1.new(self), Burger2.new(self), Burger2.new(self)]
+        @burgers = [Burger3.new(self)]
         @font = Gosu::Font.new(self, Gosu::default_font_name, 20)
-        @score = 0
         @sfx = [Gosu::Sample.new(self, "sound/collect.wav")]
-        @music = [Gosu::Song.new(self, "sound/champions.ogg"), Gosu::Song.new(self, "sound/blank_space.ogg"), Gosu::Song.new(self, "sound/zelda.ogg"), Gosu::Song. new(self, "sound/radio_star.ogg")]
-        @music[0].play(true)
+        @music = [Gosu::Song.new(self, "sound/radio_star.ogg"), Gosu::Song.new(self, "sound/champions.ogg"), Gosu::Song.new(self, "sound/zelda.ogg"), Gosu::Song.new(self, "sound/blank_space.ogg")]
+        @music[0].play(false)
+        @score = 0
+        @gap = 0
+        @target = 3
+        @alternate1 = false
+        @alternate2 = false
     end
     
     def update
@@ -48,15 +52,35 @@ class GameWindow < Gosu::Window
                 @score += 1
             end
         end
+        #Add new burgers as score increases
+        if @score == @target
+            #Burger types spawn in an alternating order
+            if @alternate1 && @alternate2
+                @burgers.push(Burger1.new(self))
+                @alternate2 = false
+            elsif @alternate1
+                @burgers.push(Burger2.new(self))
+                @alternate1, @alternate2 = false, true
+            elsif @alternate2
+                @burgers.push(Burger3.new(self))
+                @alternate1 = false
+            else
+                @burgers.push(Burger4.new(self))
+                @alternate1, @alternate2 = true, true
+            end
+            #Increase the gap between target scores each time previous target is reached
+            @gap += 3
+            @target += @gap
+        end
         #Detect which song is playing
         if @music[0].playing?
-            @song = "We Are The Champions - Queen"
+            @song = "Video Killed the Radio Star - The Buggles"
         elsif @music[1].playing?
-            @song = "Blank Space - Taylor Swift"
+            @song = "We Are The Champions - Queen"
         elsif @music[2].playing?
             @song = "Legend of Zelda - Nintendo"
         elsif @music[3].playing?
-            @song = "Video Killed the Radio Star - The Buggles"
+            @song = "Blank Space - Taylor Swift"
         end
     end
 
@@ -72,12 +96,19 @@ class GameWindow < Gosu::Window
         case id
         when Gosu::KbQ
             close
-        when Gosu::Kb3
-            @music[1].play(true)
-        when Gosu::Kb2
-            @music[2].play(true)
         when Gosu::Kb1
-            @music[3].play(true)
+            @music[0].play(false)
+        when Gosu::Kb2
+            @music[1].play(false)
+        when Gosu::Kb3
+            @music[2].play(false)
+        when Gosu::Kb4
+            @music[3].play(false)
+        when Gosu::KbS
+            5.times{@burgers.push(Burger1.new(self))}
+            5.times{@burgers.push(Burger2.new(self))}
+            5.times{@burgers.push(Burger3.new(self))}
+            5.times{@burgers.push(Burger4.new(self))}
         end
     end
 
@@ -102,6 +133,7 @@ class Player
         @icon.draw(@x, @y, ZOrder::Player)
     end
 
+#Give player move methods
     def move_left
         @x -= 6
         if @x < 0
@@ -131,14 +163,14 @@ class Player
     end
 end
 
-#Vertically falling burger class
+#Vertical (top => bottom) burger
 class Burger1
     attr_reader :x, :y
     def initialize(window)
         @window = window
         @icon = Gosu::Image.new(@window, "img/burger.png", false)
         @x = rand(@window.width)
-        @y = rand(@window.height)
+        @y = 0
     end
 
     def update
@@ -154,18 +186,46 @@ class Burger1
     end
 
     def reset
-        @y = 0
         @x = rand(@window.width)
+        @y = 0
     end
 end
 
-#Horizontally moving burger class
+#Vertical (bottom => top) burger
 class Burger2
     attr_reader :x, :y
     def initialize(window)
         @window = window
         @icon = Gosu::Image.new(@window, "img/burger.png", false)
         @x = rand(@window.width)
+        @y = @window.height
+    end
+
+    def update
+        @y -= 4
+        #If the burger reaches the end of the window, reset to beginning
+        if @y < 0
+            reset
+        end
+    end
+
+    def draw
+        @icon.draw(@x, @y, ZOrder::Burger)
+    end
+
+    def reset
+        @x = rand(@window.height)
+        @y = @window.height
+    end
+end
+
+#Horizontal (left => right) burger
+class Burger3
+    attr_reader :x, :y
+    def initialize(window)
+        @window = window
+        @icon = Gosu::Image.new(@window, "img/burger.png", false)
+        @x = 0
         @y = rand(@window.height)
     end
 
@@ -183,6 +243,34 @@ class Burger2
 
     def reset
         @x = 0
+        @y = rand(@window.height)
+    end
+end
+
+#Horizontal (right => left) burger
+class Burger4
+    attr_reader :x, :y
+    def initialize(window)
+        @window = window
+        @icon = Gosu::Image.new(@window, "img/burger.png", false)
+        @x = @window.width
+        @y = rand(@window.height)
+    end
+
+    def update
+        @x -= 4
+        #If the burger reaches the end of the window, reset to beginning
+        if @x < 0
+            reset
+        end
+    end
+
+    def draw
+        @icon.draw(@x, @y, ZOrder::Burger)
+    end
+
+    def reset
+        @x = @window.width
         @y = rand(@window.height)
     end
 end
